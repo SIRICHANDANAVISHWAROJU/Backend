@@ -1,0 +1,14 @@
+#content_div{
+    background-color:aliceblue;
+    width: 30%;
+    margin: auto;
+    margin-top: 10%;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 5%;
+    align-items: center;
+    text-align: center;
+  }
+  #submit_btn{
+    cursor: pointer;
+  }
