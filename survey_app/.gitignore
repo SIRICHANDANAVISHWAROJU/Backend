@@ -1,0 +1,6 @@
+/vendor/
+/uploads/*.csv
+/database/survey.db
+.env
+*.log
+.DS_Store

@@ -1,0 +1,188 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Results: {{ survey.topic }} — SurveyHub{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="container">
+        <a href="/admin/dashboard" class="navbar-brand">Survey<span>Hub</span></a>
+        <div class="navbar-links">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/upload">Upload CSV</a>
+            <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-detail {
+        display: none;
+        padding: 16px 18px;
+        background: var(--surface-2);
+    }
+    .result-detail.open { display: table-row; }
+    .detail-grid {
+        display: grid; gap: 10px;
+    }
+    .detail-item {
+        display: flex; gap: 12px; font-size: 0.85rem;
+        padding: 10px 14px; border-radius: 8px;
+        background: var(--surface); border: 1px solid var(--border);
+    }
+    .detail-item .q-num {
+        font-weight: 700; color: var(--accent-light); min-width: 30px;
+    }
+    .detail-item .correct-mark { color: var(--success); }
+    .detail-item .wrong-mark { color: var(--danger); }
+    .score-bar {
+        width: 100%; height: 6px; border-radius: 3px;
+        background: var(--surface-2); overflow: hidden; margin-top: 6px;
+    }
+    .score-bar-fill {
+        height: 100%; border-radius: 3px; transition: width 0.4s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header flex-between">
+        <div>
+            <h1>{{ survey.topic }}</h1>
+            <p>Survey results and analytics</p>
+        </div>
+        <div class="actions">
+            <a href="/admin/survey/{{ survey.id }}/download" class="btn btn-outline">Download CSV</a>
+            <a href="/admin/dashboard" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+    </div>
+
+    {# Stats #}
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total_responses }}</div>
+            <div class="stat-label">Total Responses</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.avg_score }}%</div>
+            <div class="stat-label">Average Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.highest_score }}%</div>
+            <div class="stat-label">Highest Score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.lowest_score }}%</div>
+            <div class="stat-label">Lowest Score</div>
+        </div>
+    </div>
+
+    {# Survey info #}
+    <div class="card mb-3">
+        <div class="flex-between">
+            <div>
+                <p class="text-dim" style="font-size:0.85rem;">Survey URL</p>
+                <a href="/survey/{{ survey.slug }}" target="_blank">/survey/{{ survey.slug }}</a>
+            </div>
+            <div>
+                <p class="text-dim" style="font-size:0.85rem;">Questions</p>
+                <strong>{{ survey.questions | length }}</strong>
+            </div>
+            <div>
+                <p class="text-dim" style="font-size:0.85rem;">Status</p>
+                {% if survey.is_active %}
+                    <span class="badge badge-active">Active</span>
+                {% else %}
+                    <span class="badge badge-inactive">Inactive</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Responses Table #}
+    {% if responses | length == 0 %}
+        <div class="card text-center" style="padding:48px;">
+            <p style="font-size:2rem; margin-bottom:8px;">🕐</p>
+            <h3>No responses yet</h3>
+            <p class="text-dim mt-1">Share the survey URL to start collecting responses.</p>
+        </div>
+    {% else %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Session ID</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Submitted</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resp in responses %}
+                    {% set pct = resp.total_questions > 0 ? ((resp.score / resp.total_questions) * 100) | round(1) : 0 %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><code style="font-size:0.8rem;">{{ resp.session_id }}</code></td>
+                        <td>{{ resp.score }} / {{ resp.total_questions }}</td>
+                        <td>
+                            <strong>{{ pct }}%</strong>
+                            <div class="score-bar">
+                                <div class="score-bar-fill" style="width:{{ pct }}%;
+                                    background:{% if pct >= 70 %}var(--success){% elseif pct >= 40 %}var(--warning){% else %}var(--danger){% endif %};"></div>
+                            </div>
+                        </td>
+                        <td style="font-size:0.85rem; color:var(--text-dim);">{{ resp.submitted_at }}</td>
+                        <td>
+                            <button class="btn btn-outline btn-sm toggle-detail" data-target="detail-{{ resp.id }}">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="result-detail" id="detail-{{ resp.id }}">
+                        <td colspan="6">
+                            <div class="detail-grid">
+                                {% for detail in resp.details %}
+                                <div class="detail-item">
+                                    <span class="q-num">Q{{ loop.index }}</span>
+                                    <div style="flex:1;">
+                                        <div>{{ detail.question_text }}</div>
+                                        <div class="mt-1">
+                                            Answer: <strong>{{ detail.option_text | default('No answer') }}</strong>
+                                            {% if detail.is_correct %}
+                                                <span class="correct-mark">✓ Correct</span>
+                                            {% else %}
+                                                <span class="wrong-mark">✗ Wrong</span>
+                                                — Correct: <em>{{ detail.correct_answer_text }}</em>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.toggle-detail').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            if (target) {
+                target.classList.toggle('open');
+                this.textContent = target.classList.contains('open') ? 'Hide' : 'View';
+            }
+        });
+    });
+</script>
+{% endblock %}

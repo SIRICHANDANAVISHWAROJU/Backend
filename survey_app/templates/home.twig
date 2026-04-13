@@ -1,0 +1,101 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Survey System — Home{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="navbar-brand">Survey<span>Hub</span></a>
+        <div class="navbar-links">
+            <a href="/login">Admin Login</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 120px 0 80px;
+    }
+    .hero h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 3.2rem;
+        letter-spacing: -1px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, var(--text), var(--accent-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+        font-size: 1.15rem;
+        color: var(--text-dim);
+        max-width: 520px;
+        margin: 0 auto 40px;
+        line-height: 1.7;
+    }
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        padding-bottom: 80px;
+    }
+    .feature-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 32px;
+        transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+    }
+    .feature-icon {
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        background: rgba(108,92,231,0.15);
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 18px;
+        font-size: 1.4rem;
+    }
+    .feature-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    .feature-card p {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h1>Anonymous Survey System</h1>
+        <p>Upload a CSV, generate unique survey links, collect anonymous responses, and download results — all from one dashboard.</p>
+        <a href="/login" class="btn btn-primary">Admin Dashboard &rarr;</a>
+    </section>
+
+    <section class="features">
+        <div class="feature-card">
+            <div class="feature-icon">📄</div>
+            <h3>CSV Upload</h3>
+            <p>Upload your questions as a CSV file. Each row becomes a multiple-choice question with correct and wrong answers.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3>Unique URLs</h3>
+            <p>Each survey gets a unique, shareable URL. Admins can enable or disable any survey link at any time.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Results & Export</h3>
+            <p>View response analytics in real time and export all results to CSV for offline analysis.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}

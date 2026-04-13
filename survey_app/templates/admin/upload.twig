@@ -1,0 +1,141 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Upload CSV — SurveyHub{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="container">
+        <a href="/admin/dashboard" class="navbar-brand">Survey<span>Hub</span></a>
+        <div class="navbar-links">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/upload" class="active">Upload CSV</a>
+            <span class="text-dim" style="font-size:0.85rem;">Hello, {{ admin }}</span>
+            <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-area {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius);
+        padding: 48px 28px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.3s, background 0.3s;
+        position: relative;
+    }
+    .upload-area:hover, .upload-area.dragover {
+        border-color: var(--accent);
+        background: rgba(108,92,231,0.05);
+    }
+    .upload-area input[type="file"] {
+        position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+    .upload-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .upload-area p { color: var(--text-dim); font-size: 0.9rem; }
+    .upload-area .filename {
+        margin-top: 12px; color: var(--accent-light); font-weight: 600;
+    }
+    .csv-guide {
+        background: var(--surface-2);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-top: 24px;
+        font-size: 0.85rem;
+    }
+    .csv-guide h4 { margin-bottom: 8px; color: var(--text); }
+    .csv-guide code {
+        display: block;
+        background: var(--bg);
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        overflow-x: auto;
+        color: var(--accent-light);
+        line-height: 1.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm">
+    <div class="page-header">
+        <h1>Upload Survey CSV</h1>
+        <p>Create a new survey by uploading a CSV file with questions</p>
+    </div>
+
+    {% if error is defined and error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+        <form method="POST" action="/admin/upload" enctype="multipart/form-data" id="uploadForm">
+            <div class="form-group">
+                <label class="form-label" for="topic">Survey Topic / Title</label>
+                <input class="form-input" type="text" id="topic" name="topic"
+                       value="{{ topic | default('') }}"
+                       placeholder="e.g. General Knowledge Quiz" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">CSV File</label>
+                <div class="upload-area" id="dropZone">
+                    <input type="file" name="csv_file" id="csvFile" accept=".csv" required>
+                    <div class="upload-icon">📁</div>
+                    <p>Drag & drop your CSV file here, or <strong>click to browse</strong></p>
+                    <div class="filename" id="fileName" style="display:none;"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:14px;">
+                Create Survey
+            </button>
+        </form>
+
+        <div class="csv-guide">
+            <h4>CSV Format Guide</h4>
+            <p class="text-dim mb-2">Each row should contain: Question, Correct Answer, Wrong Options (1 or more)</p>
+            <code>
+Question,CorrectAnswer,WrongOption1,WrongOption2,WrongOption3<br>
+"What is the capital of France?","Paris","London","Berlin","Madrid"<br>
+"Which planet is closest to the Sun?","Mercury","Venus","Mars","Jupiter"
+            </code>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('csvFile');
+    const fileName = document.getElementById('fileName');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            fileName.textContent = '📎 ' + this.files[0].name;
+            fileName.style.display = 'block';
+        }
+    });
+
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', function() {
+        this.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            fileName.textContent = '📎 ' + e.dataTransfer.files[0].name;
+            fileName.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

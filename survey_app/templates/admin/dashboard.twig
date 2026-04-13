@@ -1,0 +1,103 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Dashboard — SurveyHub{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="container">
+        <a href="/admin/dashboard" class="navbar-brand">Survey<span>Hub</span></a>
+        <div class="navbar-links">
+            <a href="/admin/dashboard" class="active">Dashboard</a>
+            <a href="/admin/upload">Upload CSV</a>
+            <span class="text-dim" style="font-size:0.85rem;">Hello, {{ admin }}</span>
+            <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header flex-between">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Manage your surveys and view responses</p>
+        </div>
+        <a href="/admin/upload" class="btn btn-primary">+ New Survey</a>
+    </div>
+
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
+    {% if errorMsg %}
+        <div class="alert alert-danger">{{ errorMsg }}</div>
+    {% endif %}
+
+    {% if surveys | length == 0 %}
+        <div class="card text-center" style="padding:60px 28px;">
+            <p style="font-size:2.5rem; margin-bottom:12px;">📋</p>
+            <h3 style="margin-bottom:8px;">No surveys yet</h3>
+            <p class="text-dim mb-3">Upload a CSV to create your first survey.</p>
+            <a href="/admin/upload" class="btn btn-primary">Upload CSV</a>
+        </div>
+    {% else %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Topic</th>
+                        <th>Survey URL</th>
+                        <th>Questions</th>
+                        <th>Responses</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for survey in surveys %}
+                    <tr>
+                        <td>{{ survey.id }}</td>
+                        <td><strong>{{ survey.topic }}</strong></td>
+                        <td>
+                            <a href="/survey/{{ survey.slug }}" target="_blank"
+                               style="font-size:0.85rem; word-break:break-all;">
+                                /survey/{{ survey.slug }}
+                            </a>
+                        </td>
+                        <td>{{ survey.question_count }}</td>
+                        <td>{{ survey.response_count }}</td>
+                        <td>
+                            {% if survey.is_active %}
+                                <span class="badge badge-active">Active</span>
+                            {% else %}
+                                <span class="badge badge-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.85rem; color:var(--text-dim);">{{ survey.created_at }}</td>
+                        <td>
+                            <div class="actions">
+                                <form method="POST" action="/admin/survey/{{ survey.id }}/toggle" style="display:inline;">
+                                    {% if survey.is_active %}
+                                        <button type="submit" class="btn btn-outline btn-sm" title="Disable survey">Disable</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-success btn-sm" title="Enable survey">Enable</button>
+                                    {% endif %}
+                                </form>
+                                <a href="/admin/survey/{{ survey.id }}/results" class="btn btn-outline btn-sm">Results</a>
+                                <a href="/admin/survey/{{ survey.id }}/download" class="btn btn-outline btn-sm">Export</a>
+                                <form method="POST" action="/admin/survey/{{ survey.id }}/delete" style="display:inline;"
+                                      onsubmit="return confirm('Delete this survey and all responses? This cannot be undone.');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

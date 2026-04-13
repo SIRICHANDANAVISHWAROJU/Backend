@@ -1,0 +1,22 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Survey Unavailable{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="navbar-brand">Survey<span>Hub</span></a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm" style="min-height:60vh; display:flex; align-items:center; justify-content:center;">
+    <div class="card text-center" style="padding:60px 40px; max-width:420px;">
+        <p style="font-size:3rem; margin-bottom:16px;">🔒</p>
+        <h2 style="margin-bottom:8px;">Survey Unavailable</h2>
+        <p class="text-dim mb-3"><strong>{{ survey.topic }}</strong> is currently not accepting responses. Please check back later.</p>
+        <a href="/" class="btn btn-outline">Go Home</a>
+    </div>
+</div>
+{% endblock %}

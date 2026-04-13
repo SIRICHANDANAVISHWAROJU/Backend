@@ -1,0 +1,79 @@
+{% extends "layouts/base.twig" %}
+
+{% block title %}Thank You — {{ survey.topic }}{% endblock %}
+
+{% block navbar %}
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="navbar-brand">Survey<span>Hub</span></a>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .thankyou-wrap {
+        min-height: 60vh;
+        display: flex; align-items: center; justify-content: center;
+        padding: 60px 0;
+    }
+    .thankyou-card {
+        text-align: center;
+        max-width: 480px;
+    }
+    .thankyou-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: pop 0.5s ease;
+    }
+    @keyframes pop {
+        0% { transform: scale(0.5); opacity: 0; }
+        70% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .thankyou-card h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2rem;
+        margin-bottom: 12px;
+    }
+    .score-display {
+        margin: 24px 0;
+        padding: 24px;
+        background: var(--surface-2);
+        border-radius: var(--radius);
+    }
+    .score-big {
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    .score-label {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="thankyou-wrap">
+    <div class="thankyou-card card">
+        <div class="thankyou-icon">🎉</div>
+        <h1>Thank You!</h1>
+        <p class="text-dim">Your responses to <strong>{{ survey.topic }}</strong> have been recorded anonymously.</p>
+
+        {% if result %}
+        <div class="score-display">
+            {% set pct = result.total_questions > 0 ? ((result.score / result.total_questions) * 100) | round(1) : 0 %}
+            <div class="score-big" style="color:{% if pct >= 70 %}var(--success){% elseif pct >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
+                {{ pct }}%
+            </div>
+            <div class="score-label">
+                You scored {{ result.score }} out of {{ result.total_questions }}
+            </div>
+        </div>
+        {% endif %}
+
+        <a href="/" class="btn btn-outline mt-3">Back to Home</a>
+    </div>
+</div>
+{% endblock %}
